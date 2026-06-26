@@ -1,13 +1,35 @@
 import pandas as pd
 import numpy as np
 import json, os
+from functools import lru_cache
 from groq import Groq
 from dotenv import load_dotenv
 from src.agent.state import InvestigationState
 from src.agent.prompts import ROUTER_SYSTEM, ROUTER_USER, MEMO_SYSTEM, MEMO_USER
 
 load_dotenv()
-client = Groq(api_key=os.getenv('GROQ_API_KEY'))
+
+
+def _get_secret(name: str) -> str | None:
+    value = os.getenv(name)
+    if value:
+        return value
+
+    try:
+        import streamlit as st
+        return st.secrets.get(name)
+    except Exception:
+        return None
+
+
+@lru_cache(maxsize=1)
+def _get_groq_client() -> Groq:
+    api_key = _get_secret('GROQ_API_KEY')
+    if not api_key:
+        raise RuntimeError(
+            'GROQ_API_KEY is not configured. Add it to Streamlit secrets or to a local .env file.'
+        )
+    return Groq(api_key=api_key)
 
 def _load_data(state: InvestigationState) -> pd.DataFrame:
     return pd.read_csv(state['full_data_path'])
@@ -116,7 +138,7 @@ def node_router(state: InvestigationState) -> dict:
         seasonal=state.get('seasonal_finding', 'N/A'),
         profit=state.get('profit_at_risk', 0),
     )
-    response = client.chat.completions.create(
+    response = _get_groq_client().chat.completions.create(
         model='llama-3.1-8b-instant',
         messages=[
             {'role': 'system', 'content': ROUTER_SYSTEM},
@@ -149,7 +171,7 @@ def node_standard_memo(state: InvestigationState) -> dict:
         seasonal=state.get('seasonal_finding', 'N/A'),
         profit=state.get('profit_at_risk', 0),
     )
-    response = client.chat.completions.create(
+    response = _get_groq_client().chat.completions.create(
         model='llama-3.1-8b-instant',
         messages=[
             {'role': 'system', 'content': MEMO_SYSTEM},
@@ -182,7 +204,7 @@ def node_escalation_memo(state: InvestigationState) -> dict:
         seasonal=state.get('seasonal_finding', 'N/A'),
         profit=state.get('profit_at_risk', 0),
     )
-    response = client.chat.completions.create(
+    response = _get_groq_client().chat.completions.create(
         model='llama-3.1-8b-instant',
         messages=[
             {'role': 'system', 'content': escalation_system},

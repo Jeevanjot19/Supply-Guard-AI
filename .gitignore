@@ -1,7 +1,15 @@
 .env
 models/*.pkl
 models/*.npy
+!models/xgb_model.pkl
+!models/shap_explainer.pkl
+!models/encoders.pkl
+!models/cluster_scaler.pkl
+!models/kmeans_model.pkl
 data/*.csv
+!data/high_risk_orders.csv
+!data/cluster_profiles.csv
+!data/DataCoSupplyChainDataset.csv
 supplyguard/
 __pycache__/
 *.py[cod]

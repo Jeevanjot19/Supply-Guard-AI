@@ -1,0 +1,4 @@
+cluster_id,order_count,avg_risk_score,dominant_shap_feature,dominant_shap_value,dominant_shipping_mode,dominant_region,dominant_department,dominant_month,profit_at_risk
+0,34945,0.793,Days for shipment (scheduled),1.09,Second Class,Western Europe,Fan Shop,1,721963.82
+1,26435,1.0,Shipping Mode,6.3383,First Class,Central America,Fan Shop,5,615242.81
+2,220,0.876,Shipping Mode,2.2896,Second Class,Central America,Fitness,2,3347.18

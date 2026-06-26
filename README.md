@@ -21,8 +21,8 @@ DataCo Smart Supply Chain (Kaggle) — 180,519 records, 53 features, 2015-2019
 
 ## Setup
 pip install -r requirements.txt
-# Add OPENAI_API_KEY to .env
-streamlit run app/streamlit_app.py
+# Add GROQ_API_KEY to .env locally, or to Streamlit secrets in production
+streamlit run src/app/streamlit_app.py
 
 ## Key Design Decisions
 - Temporal train/test split (train 2015-2018, test 2019) — avoids temporal leakage

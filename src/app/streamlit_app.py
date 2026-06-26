@@ -12,7 +12,27 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 from src.agent.graph import run_investigation
 
+REQUIRED_FILES = [
+    PROJECT_ROOT / 'models' / 'xgb_model.pkl',
+    PROJECT_ROOT / 'models' / 'shap_explainer.pkl',
+    PROJECT_ROOT / 'models' / 'encoders.pkl',
+    PROJECT_ROOT / 'models' / 'feature_names.json',
+    PROJECT_ROOT / 'data' / 'high_risk_orders.csv',
+    PROJECT_ROOT / 'data' / 'cluster_profiles.csv',
+    PROJECT_ROOT / 'data' / 'DataCoSupplyChainDataset.csv',
+]
+
+
+def check_required_files() -> None:
+    missing = [str(path.relative_to(PROJECT_ROOT)) for path in REQUIRED_FILES if not path.exists()]
+    if missing:
+        st.error('Deployment is missing required model/data files.')
+        st.markdown('Add these files to the repository and redeploy:')
+        st.code('\n'.join(missing))
+        st.stop()
+
 st.set_page_config(page_title='SupplyGuard AI', layout='wide', page_icon='🚚')
+check_required_files()
 
 # ── Load artifacts ─────────────────────────────────────────────────────
 @st.cache_resource
@@ -180,8 +200,11 @@ elif page == 'Agent Investigation':
 
     if st.button('Run Agent Investigation', type='primary'):
         with st.spinner('Agent investigating... this takes 10-20 seconds...'):
-            result = run_investigation(profile_row, str(PROJECT_ROOT / 'data' / 'high_risk_orders.csv'))
-            st.session_state.agent_result = result
+            try:
+                result = run_investigation(profile_row, str(PROJECT_ROOT / 'data' / 'high_risk_orders.csv'))
+                st.session_state.agent_result = result
+            except Exception as e:
+                st.error(f'Agent investigation failed: {e}')
 
     if st.session_state.agent_result:
         result = st.session_state.agent_result
