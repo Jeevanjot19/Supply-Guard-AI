@@ -198,13 +198,26 @@ elif page == 'Agent Investigation':
     cols[2].metric('Profit at Risk', f"${profile_row['profit_at_risk']:,.0f}")
     cols[3].metric('Dominant Mode', profile_row['dominant_shipping_mode'])
 
-    if st.button('Run Agent Investigation', type='primary'):
-        with st.spinner('Agent investigating... this takes 10-20 seconds...'):
+    # if st.button('Run Agent Investigation', type='primary'):
+    #     with st.spinner('Agent investigating... this takes 10-20 seconds...'):
+    #         try:
+    #             result = run_investigation(profile_row, str(PROJECT_ROOT / 'data' / 'high_risk_orders.csv'))
+    #             st.session_state.agent_result = result
+    #         except Exception as e:
+    #             st.error(f'Agent investigation failed: {e}')
+
+    if st.button("Run Agent Investigation", type="primary"):
+        with st.spinner("Agent investigating..."):
             try:
-                result = run_investigation(profile_row, str(PROJECT_ROOT / 'data' / 'high_risk_orders.csv'))
+                result = run_investigation(
+                    profile_row,
+                    str(PROJECT_ROOT / "data" / "high_risk_orders.csv")
+                )
                 st.session_state.agent_result = result
-            except Exception as e:
-                st.error(f'Agent investigation failed: {e}')
+
+            except Exception:
+                st.error("Agent investigation failed.")
+                st.code(traceback.format_exc())
 
     if st.session_state.agent_result:
         result = st.session_state.agent_result
